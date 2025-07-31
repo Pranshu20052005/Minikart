@@ -16,7 +16,7 @@ const UserHome = () => {
 
   const getData = async () => {
     await axios
-      .get("https://minikart-5t9h.onrender.com/")
+      .get("http://localhost:3000/")
       .then((res) => {
         console.log(res.data.products);
         setProductData(res.data.products);
