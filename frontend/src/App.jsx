@@ -9,6 +9,7 @@ import UserHome from './Pages/usersPage/UserHome'
 import UserProductDetail from './Pages/usersPage/UserProductDetail'
 import Cart from './Pages/usersPage/Cart'
 import { CartProvider } from './Pages/usersPage/CartContext'
+import Login from './Pages/Login'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path='/' element={<UserHome/>}/>
           <Route path='/products/detail/:productId' element={<UserProductDetail/>}/>
           <Route path='/cart' element={<Cart/>}/>
+          <Route path='/login' element={<Login/>}/>
    
           <Route  path='/admin/' element={<Home/>}/>
           <Route  path='/admin/products/add' element={<AddProducts/>}/>
