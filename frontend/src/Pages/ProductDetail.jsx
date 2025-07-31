@@ -14,7 +14,7 @@ const ProductDetail = () => {
 
     const getProductDetail = async()=>{
 
-       await axios.get("http://localhost:3000/products/"+productId)
+       await axios.get("https://minikart-5t9h.onrender.com/products/"+productId)
         .then((res)=>{
             console.log(res);
             
@@ -30,7 +30,7 @@ const ProductDetail = () => {
      
       <div className="main">
         <div className="left">
-            {/* <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" /> */}
+            {/* {<img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" /> } */}
         </div>
         {/* <div className="right">
             <h1>Title</h1>

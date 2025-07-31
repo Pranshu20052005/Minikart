@@ -15,7 +15,7 @@ const AddProducts = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         let formData = new FormData(e.target);
-        axios.post("http://localhost:3000/products/add", formData)
+        axios.post("https://minikart-5t9h.onrender.com/products/add", formData)
             .then((res) => {
                 console.log(res);
                 navigate("/")
