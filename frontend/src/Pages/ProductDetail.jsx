@@ -14,7 +14,7 @@ const ProductDetail = () => {
 
     const getProductDetail = async()=>{
 
-       await axios.get("http://localhost:3000/products/"+productId)
+       await axios.get("https://minikart-5t9h.onrender.com/products/"+productId)
         .then((res)=>{
             console.log(res);
             
