@@ -16,7 +16,7 @@ const ProductDetail = () => {
 
     const getProductDetail = async()=>{
        try {
-           const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/products/`+productId)
+           const res = await axios.get(`https://minikart-f25z.onrender.com/products/`+productId)
            console.log(res);
            setProductData(res.data.product)
            setLoading(false)

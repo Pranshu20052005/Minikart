@@ -15,7 +15,7 @@ const Cart = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get('${import.meta.env.VITE_BACKEND_URL}/cart');
+      const response = await axios.get('https://minikart-f25z.onrender.com/cart');
       setCartItems(response.data.cartItems);
       setTotalPrice(response.data.totalPrice);
       setLoading(false);
@@ -32,7 +32,7 @@ const Cart = () => {
         return;
       }
 
-      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/cart/update/${productId}`, {
+      await axios.put(`https://minikart-f25z.onrender.com/cart/update/${productId}`, {
         quantity: newQuantity
       });
       fetchCartItems();
@@ -43,7 +43,7 @@ const Cart = () => {
 
   const removeFromCart = async (productId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/cart/remove/${productId}`);
+      await axios.delete(`https://minikart-f25z.onrender.com/cart/remove/${productId}`);
       fetchCartItems();
     } catch (error) {
       console.error('Error removing item:', error);
@@ -52,7 +52,7 @@ const Cart = () => {
 
   const clearCart = async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/cart/clear`);
+      await axios.delete(`https://minikart-f25z.onrender.com/cart/clear`);
       fetchCartItems();
     } catch (error) {
       console.error('Error clearing cart:', error);

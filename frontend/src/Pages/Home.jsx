@@ -14,7 +14,7 @@ const Home = () => {
 
   const getData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/`);
+      const res = await axios.get(`https://minikart-f25z.onrender.com/`);
       console.log(res.data.products);
       setProductData(res.data.products);
       setLoading(false);
