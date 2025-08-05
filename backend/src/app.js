@@ -7,7 +7,7 @@ const app = express()
 const path = require("path")
 const morgon = require("morgan")
 const cors = require("cors")
-
+require("dotenv").config()
 app.use(morgon("dev"))
 
 
@@ -16,7 +16,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 
-
+console.log(process.env.MONGODB_URI);
 
 app.use("/", indexRouter) 
 app.use("/cart", cartRouter)
