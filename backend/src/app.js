@@ -19,9 +19,9 @@ app.use(express.urlencoded({extended : true}))
 console.log(process.env.MONGODB_URI);
 
 app.use("/", indexRouter) 
-app.use("/cart", cartRouter)
-app.use("/users", userRouter)
-app.use("/products",productRouter)
+app.use("/api/cart", cartRouter)
+app.use("/api/users", userRouter)
+app.use("/api/products", productRouter)
 
 
 module.exports = app

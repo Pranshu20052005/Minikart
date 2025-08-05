@@ -21,40 +21,53 @@ router.get("/", async (req, res) => {
 
 
 router.post("/add", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Image is required" });
+    }
 
-  const imagekit = new ImageKit({
-     publicKey: process.env.publicKey,
-  privateKey: process.env.privateKey,
-  urlEndpoint: process.env.urlEndpoint,
-  });
+    const imagekit = new ImageKit({
+      publicKey: process.env.publicKey,
+      privateKey: process.env.privateKey,
+      urlEndpoint: process.env.urlEndpoint,
+    });
 
+    const result = await imagekit.upload({
+      file: req.file.buffer,
+      fileName: req.file.originalname,
+      isPrivateFile: false,
+      isPublished: true
+    });
 
-  const result = await imagekit.upload({
-    file : req.file.buffer,
-    fileName : req.file.originalname,
-    isPrivateFile : false,
-    isPublished : true
-  })
+    const imageUrl = result.url;
 
-  const imageUrl = result.url
+    const { title, description, category, price } = req.body;
+    
+    if (!title || !description || !category || !price) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
- 
-  const { title, description, category, price } = req.body;
-  
+    const product = new productModel({
+      title: title,
+      description: description,
+      category: category,
+      price: price,
+      image: imageUrl
+    });
 
-      const product = new productModel(
-          {
-              title : title,
-              description : description,
-              category : category,
-              price : price,
-              image : imageUrl
-           }
-  )
+    await product.save();
 
-      await product.save()
-
-  res.json({message : "data aaya"})
+    res.status(201).json({ 
+      message: "Product added successfully", 
+      product: product 
+    });
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).json({ 
+      message: "Error adding product", 
+      error: error.message 
+    });
+  }
 });
 
 router.get("/:id",async (req, res)=>{
