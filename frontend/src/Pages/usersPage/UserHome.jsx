@@ -15,7 +15,7 @@ const UserHome = () => {
 
   const getData = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/`);
+      const res = await axios.get(`https://minikart-backend-rbvj.onrender.com/`);
       console.log(res.data.products);
       setProductData(res.data.products);
       setFilteredProducts(res.data.products);
@@ -28,7 +28,7 @@ const UserHome = () => {
 
   const addToCart = async (productId) => {
     try {
-      await axios.post(`http://localhost:3000/cart/add/${productId}`, {
+      await axios.post(`https://minikart-backend-rbvj.onrender.com/cart/add/${productId}`, {
         quantity: 1
       });
       alert("Product added to cart successfully!");
