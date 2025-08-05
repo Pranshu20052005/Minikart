@@ -17,9 +17,9 @@ router.get("/", (req, res) => {
 router.post("/add", upload.single("image"), async (req, res) => {
 
   const imagekit = new ImageKit({
-    publicKey: "public_M0PAK4NmC1d2995cVHB6hjiBgaE=",
-    privateKey : "private_KT7FkfaTOTLNy6lVG+V7iKE2ba4=",
-    urlEndpoint: "https://ik.imagekit.io/ls436o8px",
+     publicKey: process.env.publicKey,
+  privateKey: process.env.privateKey,
+  urlEndpoint: process.env.urlEndpoint,
   });
 
 

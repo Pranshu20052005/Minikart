@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express")
 const productRouter = require("./routes/product.router")
 const indexRouter = require("./routes/index.router")
@@ -7,7 +8,6 @@ const app = express()
 const path = require("path")
 const morgon = require("morgan")
 const cors = require("cors")
-require("dotenv").config()
 app.use(morgon("dev"))
 
 
