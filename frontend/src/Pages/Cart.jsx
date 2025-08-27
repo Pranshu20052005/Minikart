@@ -15,12 +15,17 @@ const Cart = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get('https://minikart-backend-rbvj.onrender.com/cart');
-      setCartItems(response.data.cartItems);
-      setTotalPrice(response.data.totalPrice);
-      setLoading(false);
+      setLoading(true);
+      const response = await axios.get('https://minikart-backend-rbvj.onrender.com/api/cart');
+      
+      if (response.data) {
+        setCartItems(response.data.cartItems || []);
+        setTotalPrice(response.data.totalPrice || 0);
+      }
     } catch (error) {
       console.error('Error fetching cart items:', error);
+      alert('Failed to load cart. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -32,30 +37,41 @@ const Cart = () => {
         return;
       }
 
-      await axios.put(`https://minikart-backend-rbvj.onrender.com/cart/update/${productId}`, {
+      await axios.put(`https://minikart-backend-rbvj.onrender.com/api/cart/update/${productId}`, {
         quantity: newQuantity
       });
-      fetchCartItems();
+      await fetchCartItems();
     } catch (error) {
       console.error('Error updating quantity:', error);
+      alert('Failed to update cart. Please try again.');
     }
   };
 
   const removeFromCart = async (productId) => {
+    if (!window.confirm('Are you sure you want to remove this item from your cart?')) {
+      return;
+    }
+    
     try {
-      await axios.delete(`https://minikart-backend-rbvj.onrender.com/cart/remove/${productId}`);
-      fetchCartItems();
+      await axios.delete(`https://minikart-backend-rbvj.onrender.com/api/cart/remove/${productId}`);
+      await fetchCartItems();
     } catch (error) {
       console.error('Error removing item:', error);
+      alert('Failed to remove item. Please try again.');
     }
   };
 
   const clearCart = async () => {
+    if (!window.confirm('Are you sure you want to clear your cart?')) {
+      return;
+    }
+    
     try {
-      await axios.delete(`https://minikart-backend-rbvj.onrender.com/cart/clear`);
-      fetchCartItems();
+      await axios.delete(`https://minikart-backend-rbvj.onrender.com/api/cart/clear`);
+      await fetchCartItems();
     } catch (error) {
       console.error('Error clearing cart:', error);
+      alert('Failed to clear cart. Please try again.');
     }
   };
 

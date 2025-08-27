@@ -70,16 +70,41 @@ router.post("/add", upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/:id",async (req, res)=>{
-    const productId = req.params.id
+router.get("/:id", async (req, res) => {
+    try {
+        const productId = req.params.id;
+        
+        // Validate ObjectId format
+        if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Invalid product ID format" 
+            });
+        }
 
-    const product = await productModel.findById(productId)
+        const product = await productModel.findById(productId);
+        
+        if (!product) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Product not found" 
+            });
+        }
 
-    console.log(product);
-
-
-    res.status(200).json({message : "data mil gya " , product})
-    
+        res.status(200).json({ 
+            success: true,
+            message: "Product fetched successfully", 
+            product 
+        });
+        
+    } catch (error) {
+        console.error("Error fetching product:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error fetching product", 
+            error: error.message 
+        });
+    }
 })
 
 router.get("/update/:id", async(req, res)=>{
