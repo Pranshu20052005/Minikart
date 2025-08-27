@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import UserNav from './usersPage/UserNav';
 import './Cart.css';
+import API_BASE_URL from '../config/api';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -16,7 +17,7 @@ const Cart = () => {
   const fetchCartItems = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://minikart-backend-rbvj.onrender.com/api/cart');
+      const response = await axios.get(`${API_BASE_URL}/cart`);
       
       if (response.data) {
         setCartItems(response.data.cartItems || []);
@@ -37,7 +38,7 @@ const Cart = () => {
         return;
       }
 
-      await axios.put(`https://minikart-backend-rbvj.onrender.com/api/cart/update/${productId}`, {
+      await axios.put(`${API_BASE_URL}/cart/update/${productId}`, {
         quantity: newQuantity
       });
       await fetchCartItems();
@@ -53,7 +54,7 @@ const Cart = () => {
     }
     
     try {
-      await axios.delete(`https://minikart-backend-rbvj.onrender.com/api/cart/remove/${productId}`);
+      await axios.delete(`${API_BASE_URL}/cart/remove/${productId}`);
       await fetchCartItems();
     } catch (error) {
       console.error('Error removing item:', error);
@@ -67,7 +68,7 @@ const Cart = () => {
     }
     
     try {
-      await axios.delete(`https://minikart-backend-rbvj.onrender.com/api/cart/clear`);
+      await axios.delete(`${API_BASE_URL}/cart/clear`);
       await fetchCartItems();
     } catch (error) {
       console.error('Error clearing cart:', error);

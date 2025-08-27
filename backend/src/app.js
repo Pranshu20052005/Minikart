@@ -11,7 +11,10 @@ const cors = require("cors")
 app.use(morgon("dev"))
 
 
-app.use(cors())
+app.use(cors({
+  origin: ['https://minikart-1.onrender.com', 'http://localhost:3000'],
+  credentials: true
+}))
 
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import "./productDetail.css";
 import axios from 'axios';
 import Navbar from "../components/Navbar";
+import API_BASE_URL from '../config/api';
 
 const ProductDetail = () => {
    const { productId } = useParams();
@@ -19,7 +20,7 @@ const ProductDetail = () => {
       try {
          setLoading(true);
          setError('');
-         const response = await axios.get(`https://minikart-backend-rbvj.onrender.com/api/products/${productId}`);
+         const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
          
          if (response.data.success && response.data.product) {
             setProductData(response.data.product);
