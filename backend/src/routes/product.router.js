@@ -104,41 +104,72 @@ router.get("/update/:id", async(req, res)=>{
 })
 
 
-router.post("/update/:id",upload.single("image") ,async(req, res)=>{
+router.post("/update/:id", upload.single("image"), async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const { title, description, category, price } = req.body;
 
-    const productId = req.params.id
+        // Validate required fields
+        if (!title || !description || !category || !price) {
+            return res.status(400).json({ 
+                success: false,
+                message: "All fields are required" 
+            });
+        }
 
-    console.log(req.body);
-    
-  const { title, description, category, price } = req.body;
+        const updateData = {
+            title,
+            description,
+            category,
+            price,
+            updatedAt: new Date()
+        };
 
-  
-  const imagekit = new ImageKit({
-    publicKey: process.env.publicKey,
-    privateKey: process.env.privateKey,
-    urlEndpoint: process.env.urlEndpoint,
-  });
+        // Only handle image upload if a new image was provided
+        if (req.file) {
+            const imagekit = new ImageKit({
+                publicKey: process.env.publicKey,
+                privateKey: process.env.privateKey,
+                urlEndpoint: process.env.urlEndpoint,
+            });
 
+            const result = await imagekit.upload({
+                file: req.file.buffer,
+                fileName: req.file.originalname,
+                isPrivateFile: false,
+                isPublished: true
+            });
 
-  const result = await imagekit.upload({
-    file : req.file.buffer,
-    fileName : req.file.originalname,
-    isPrivateFile : false,
-    isPublished : true
-  })
+            updateData.image = result.url;
+        }
 
-  const imageUrl = result.url
+        const updatedProduct = await productModel.findByIdAndUpdate(
+            productId,
+            updateData,
+            { new: true, runValidators: true }
+        );
 
-    await productModel.findByIdAndUpdate(productId,{
-    title : title,
-    description : description,
-    category : category,
-    price : price,
-    image : imageUrl
-  })
+        if (!updatedProduct) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
 
-  res.redirect(`/products/${productId}`)
-    
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            product: updatedProduct
+        });
+        
+    } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error updating product",
+            error: error.message
+        });
+    }
 })
 
 
