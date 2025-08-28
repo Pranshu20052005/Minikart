@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import "./productDetail.css";
 import axios from 'axios';
 import Navbar from "../components/Navbar";
 import API_BASE_URL from '../config/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AuthContext } from '../context/AuthContext';
 
 const ProductDetail = () => {
    const { productId } = useParams();
@@ -11,10 +14,54 @@ const ProductDetail = () => {
    const [productData, setProductData] = useState(null);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState('');
-    
+   const [quantity, setQuantity] = useState(1);
+   const [addingToCart, setAddingToCart] = useState(false);
+   const { isAuthenticated } = useContext(AuthContext);
+     
    useEffect(() => {
       getProductDetail();
    }, [productId]);
+
+   const handleQuantityChange = (e) => {
+      const value = parseInt(e.target.value);
+      if (value > 0) {
+         setQuantity(value);
+      }
+   };
+
+   const handleAddToCart = async () => {
+      if (!isAuthenticated) {
+         toast.error('Please login to add items to cart');
+         navigate('/login', { state: { from: `/product/${productId}` } });
+         return;
+      }
+
+      try {
+         setAddingToCart(true);
+         const response = await axios.post(
+            `${API_BASE_URL}/cart/add/${productId}`, 
+            { quantity },
+            { withCredentials: true }
+         );
+         
+         if (response.data.success) {
+            toast.success('Product added to cart successfully!');
+         } else {
+            toast.error(response.data.message || 'Failed to add to cart');
+         }
+      } catch (error) {
+         console.error('Error adding to cart:', error);
+         const errorMessage = error.response?.data?.error || 'Failed to add to cart';
+         toast.error(errorMessage);
+         
+         if (error.response?.status === 401) {
+            // Redirect to login if not authenticated
+            navigate('/login', { state: { from: `/product/${productId}` } });
+         }
+      } finally {
+         setAddingToCart(false);
+      }
+   };
    
    const getProductDetail = async () => {
       try {
@@ -80,9 +127,34 @@ const ProductDetail = () => {
                 </div>
                 <div className="right">
                     <h1>{productData.title}</h1>
-                    <p>{productData.description}</p>
+                    <p className="description">{productData.description}</p>
                     <div className="price">
-                        <h2>Price: ₹{productData.price}</h2>
+                        <h2>Price: ₹{productData.price.toLocaleString('en-IN')}</h2>
+                    </div>
+                    
+                    <div className="quantity-selector">
+                        <label htmlFor="quantity">Quantity:</label>
+                        <input 
+                            type="number" 
+                            id="quantity"
+                            min="1" 
+                            value={quantity}
+                            onChange={handleQuantityChange}
+                            className="quantity-input"
+                        />
+                    </div>
+                    
+                    <button 
+                        onClick={handleAddToCart}
+                        disabled={addingToCart}
+                        className="add-to-cart-btn"
+                    >
+                        {addingToCart ? 'Adding to Cart...' : 'Add to Cart'}
+                    </button>
+                    
+                    <div className="product-meta">
+                        <span>Category: {productData.category}</span>
+                        <span>In Stock: {productData.stock || 'Available'}</span>
                     </div>
                 </div>
             </div>
