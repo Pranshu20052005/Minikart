@@ -10,16 +10,26 @@ router.get("/", async (req, res) => {
         
         // Calculate total price
         let totalPrice = 0;
-        cartItems.forEach(item => {
-            totalPrice += item.productId.price * item.quantity;
+        const itemsWithDetails = cartItems.map(item => {
+            const itemTotal = item.productId.price * item.quantity;
+            totalPrice += itemTotal;
+            return {
+                ...item.toObject(),
+                itemTotal: itemTotal.toFixed(2)
+            };
         });
         
         res.status(200).json({
-            cartItems,
+            success: true,
+            cartItems: itemsWithDetails,
             totalPrice: totalPrice.toFixed(2)
         });
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch cart items" });
+        console.error("Error fetching cart items:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to fetch cart items" 
+        });
     }
 });
 
@@ -30,23 +40,30 @@ router.post("/add/:productId", async (req, res) => {
         const { quantity = 1 } = req.body;
 
         if (!productId) {
-            return res.status(400).json({ error: "productId is required" });
+            return res.status(400).json({ 
+                success: false,
+                error: "Product ID is required" 
+            });
         }
 
         // Check if product exists
         const product = await productModel.findById(productId);
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Product not found" 
+            });
         }
 
         // Check if item already exists in cart
-        const existingItem = await cartModel.findOne({ productId });
+        let existingItem = await cartModel.findOne({ productId });
         
         if (existingItem) {
             // Update quantity
             existingItem.quantity += parseInt(quantity);
             await existingItem.save();
-            res.status(200).json({ 
+            return res.status(200).json({ 
+                success: true,
                 message: "Product quantity updated in cart", 
                 cartItem: existingItem 
             });
@@ -55,12 +72,17 @@ router.post("/add/:productId", async (req, res) => {
             const cartItem = new cartModel({ productId, quantity: parseInt(quantity) });
             await cartItem.save();
             res.status(201).json({ 
+                success: true,
                 message: "Product added to cart", 
-                cartItem 
+                cartItem: await cartItem.populate('productId')
             });
         }
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error adding to cart:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to add item to cart" 
+        });
     }
 });
 
@@ -71,31 +93,52 @@ router.put("/update/:productId", async (req, res) => {
         const { quantity } = req.body;
 
         if (!productId || quantity === undefined) {
-            return res.status(400).json({ error: "productId and quantity are required" });
+            return res.status(400).json({ 
+                success: false,
+                error: "Product ID and quantity are required" 
+            });
         }
 
         if (quantity <= 0) {
             // Remove item if quantity is 0 or negative
             await cartModel.findOneAndDelete({ productId });
-            return res.status(200).json({ message: "Product removed from cart" });
+            return res.status(200).json({ 
+                success: true,
+                message: "Item removed from cart" 
+            });
         }
 
         const updatedItem = await cartModel.findOneAndUpdate(
             { productId },
-            { quantity },
+            { quantity: parseInt(quantity) },
             { new: true }
-        );
+        ).populate("productId");
 
         if (!updatedItem) {
-            return res.status(404).json({ error: "Cart item not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Item not found in cart" 
+            });
         }
 
+        // Calculate item total
+        const itemTotal = (updatedItem.productId.price * updatedItem.quantity).toFixed(2);
+        const responseItem = {
+            ...updatedItem.toObject(),
+            itemTotal
+        };
+
         res.status(200).json({ 
-            message: "Cart item updated", 
-            cartItem: updatedItem 
+            success: true,
+            message: "Cart updated", 
+            cartItem: responseItem 
         });
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error updating cart:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to update cart" 
+        });
     }
 });
 
@@ -103,16 +146,25 @@ router.put("/update/:productId", async (req, res) => {
 router.delete("/remove/:productId", async (req, res) => {
     try {
         const { productId } = req.params;
-
         const deletedItem = await cartModel.findOneAndDelete({ productId });
 
         if (!deletedItem) {
-            return res.status(404).json({ error: "Cart item not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Item not found in cart" 
+            });
         }
 
-        res.status(200).json({ message: "Product removed from cart" });
+        res.status(200).json({ 
+            success: true,
+            message: "Item removed from cart" 
+        });
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error removing item from cart:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to remove item from cart" 
+        });
     }
 });
 
@@ -120,9 +172,16 @@ router.delete("/remove/:productId", async (req, res) => {
 router.delete("/clear", async (req, res) => {
     try {
         await cartModel.deleteMany({});
-        res.status(200).json({ message: "Cart cleared successfully" });
+        res.status(200).json({ 
+            success: true,
+            message: "Cart cleared successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error clearing cart:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to clear cart" 
+        });
     }
 });
 
