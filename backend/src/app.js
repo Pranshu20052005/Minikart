@@ -11,10 +11,30 @@ const cors = require("cors")
 app.use(morgon("dev"))
 
 
-app.use(cors({
-  origin: ['https://minikart-1.onrender.com', 'http://localhost:3000'],
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://minikart-1.onrender.com',
+      'http://localhost:3000',
+      'http://localhost:5173' // Vite default port
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-}))
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
